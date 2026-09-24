@@ -1,0 +1,9 @@
+fastapi==0.141.1
+uvicorn[standard]==0.37.0
+sqlalchemy==2.0.54
+pyjwt==2.12.1
+bcrypt==5.0.0
+email-validator==2.3.0
+pymysql==1.1.2
+cryptography==46.0.3
+tzdata==2025.2

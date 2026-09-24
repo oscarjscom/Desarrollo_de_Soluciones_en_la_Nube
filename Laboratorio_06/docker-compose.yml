@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: securedocs
+      MYSQL_USER: securedocs
+      MYSQL_PASSWORD: securedocs123
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psecuredocs123", "-usecuredocs"]
+      interval: 5s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: mysql+pymysql://securedocs:securedocs123@db:3306/securedocs?charset=utf8mb4
+      JWT_SECRET: cambia-esta-clave-larga-y-secreta-antes-de-desplegar
+      DEMO_MODE: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

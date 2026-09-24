@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecureDocs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6f9; }
+    /* por si el CDN de Bootstrap no carga */
+    .d-none { display: none !important; }
+    .modal:not(.show) { display: none; }
+    .badge-nivel { min-width: 2rem; }
+    pre.json { font-size: .8rem; background: #f8f9fa; padding: .5rem; border-radius: .25rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-3">
+  <div class="container">
+    <span class="navbar-brand">🔒 SecureDocs <small class="text-secondary">RBAC + ABAC</small></span>
+    <span id="navUsuario" class="text-light small d-none">
+      <span id="navNombre"></span>
+      <button class="btn btn-sm btn-outline-light ms-2" onclick="logout()">Cerrar sesión</button>
+    </span>
+  </div>
+</nav>
+
+<div class="container pb-5">
+  <!-- Entorno simulado (atributos de entorno para ABAC) -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-center">
+        <div class="col-auto fw-semibold small">Entorno de la petición:</div>
+        <div class="col-auto">
+          <select id="envUbicacion" class="form-select form-select-sm">
+            <option>PERU</option><option>CHILE</option><option>COLOMBIA</option><option>DESCONOCIDA</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <select id="envDispositivo" class="form-select form-select-sm">
+            <option>CORPORATIVO</option><option>PERSONAL</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <input id="envHora" type="time" class="form-control form-control-sm" title="Hora simulada (modo demo). Vacío = hora real">
+        </div>
+        <div class="col small text-muted">La hora solo se simula si el servidor está en modo demo. Vacío = hora real del servidor.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="alerta"></div>
+
+  <!-- Login -->
+  <div id="vistaLogin" class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Iniciar sesión</h5>
+          <form onsubmit="login(event)">
+            <div class="mb-2">
+              <label class="form-label small">Usuario</label>
+              <input id="loginUser" class="form-control" list="usuariosDemo" required>
+              <datalist id="usuariosDemo">
+                <option value="admin">Administrador</option>
+                <option value="maria.gomez">Gerente FINANZAS nivel 5</option>
+                <option value="carlos.ruiz">Supervisor FINANZAS nivel 3</option>
+                <option value="ana.torres">Supervisor FINANZAS nivel 3</option>
+                <option value="luis.perez">Empleado FINANZAS nivel 2</option>
+                <option value="rosa.diaz">Empleado RRHH nivel 2</option>
+                <option value="jorge.salas">Auditor nivel 5</option>
+                <option value="invitado.ext">Invitado externo nivel 1</option>
+                <option value="pedro.inactivo">Empleado INACTIVO</option>
+              </datalist>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small">Contraseña</label>
+              <input id="loginPass" type="password" class="form-control" value="SecureDocs2026" required>
+            </div>
+            <button class="btn btn-primary w-100">Entrar</button>
+          </form>
+          <p class="small text-muted mt-3 mb-0">Usuarios de prueba con la contraseña <code>SecureDocs2026</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="vistaApp" class="d-none">
+    <div class="card mb-3">
+      <div class="card-body py-2 small" id="perfil"></div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item"><a class="nav-link active" data-tab="docs" href="#">Documentos</a></li>
+      <li class="nav-item"><a class="nav-link" data-tab="usuarios" href="#">Usuarios</a></li>
+      <li class="nav-item"><a class="nav-link" data-tab="politicas" href="#">Políticas ABAC</a></li>
+      <li class="nav-item"><a class="nav-link" data-tab="rbac" href="#">Matriz RBAC</a></li>
+      <li class="nav-item"><a class="nav-link" data-tab="auditoria" href="#">Auditoría</a></li>
+    </ul>
+
+    <!-- Documentos -->
+    <section id="tab-docs">
+      <div class="d-flex justify-content-between mb-2">
+        <h5>Documentos visibles para ti</h5>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="cargarDocs()">Recargar</button>
+          <button class="btn btn-sm btn-primary" onclick="abrirDoc()">+ Nuevo documento</button>
+        </div>
+      </div>
+      <div class="row g-2 mb-2">
+        <div class="col-auto"><input id="docIdBuscar" type="number" class="form-control form-control-sm" placeholder="ID"></div>
+        <div class="col-auto"><button class="btn btn-sm btn-outline-dark" onclick="consultarDoc()">Consultar por ID (GET /documentos/{id})</button></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover bg-white">
+          <thead><tr><th>ID</th><th>Título</th><th>Depto.</th><th>Nivel</th><th>Estado</th><th>Propietario</th><th class="text-end">Acciones</th></tr></thead>
+          <tbody id="tablaDocs"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Usuarios -->
+    <section id="tab-usuarios" class="d-none">
+      <div class="d-flex justify-content-between mb-2">
+        <h5>Usuarios</h5>
+        <button class="btn btn-sm btn-primary" onclick="abrirUsuario()">+ Nuevo usuario</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm bg-white">
+          <thead><tr><th>ID</th><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Depto.</th><th>Nivel</th><th>País</th><th>Contrato</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tablaUsuarios"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Políticas -->
+    <section id="tab-politicas" class="d-none">
+      <h5>Políticas ABAC (centralizadas en la BD)</h5>
+      <p class="small text-muted">Se pueden activar/desactivar y cambiar sus parámetros sin tocar el código.</p>
+      <div id="listaPoliticas" class="row g-2"></div>
+    </section>
+
+    <!-- RBAC -->
+    <section id="tab-rbac" class="d-none">
+      <h5>Matriz de roles y permisos</h5>
+      <div class="table-responsive"><table class="table table-sm bg-white text-center" id="tablaRbac"></table></div>
+    </section>
+
+    <!-- Auditoría -->
+    <section id="tab-auditoria" class="d-none">
+      <div class="d-flex justify-content-between mb-2">
+        <h5>Registro de auditoría</h5>
+        <div class="d-flex gap-2">
+          <select id="filtroResultado" class="form-select form-select-sm" onchange="cargarAuditoria()">
+            <option value="">Todos</option><option>PERMITIDO</option><option>DENEGADO</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary" onclick="cargarAuditoria()">Recargar</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm bg-white small">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Recurso</th><th>Acción</th><th>Resultado</th><th>Etapa</th><th>Motivo</th><th>Entorno</th></tr></thead>
+          <tbody id="tablaAuditoria"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Modal documento -->
+<div class="modal fade" id="modalDoc" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <form onsubmit="guardarDoc(event)">
+      <div class="modal-header"><h5 class="modal-title" id="modalDocTitulo">Documento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="docId">
+        <div class="mb-2"><label class="form-label small">Título</label><input id="docTitulo" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Descripción</label><textarea id="docDescripcion" class="form-control" rows="3"></textarea></div>
+        <div class="row g-2">
+          <div class="col"><label class="form-label small">Departamento</label><select id="docDepartamento" class="form-select"></select></div>
+          <div class="col"><label class="form-label small">Nivel</label>
+            <select id="docNivel" class="form-select"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+          <div class="col"><label class="form-label small">Estado</label>
+            <select id="docEstado" class="form-select"><option>PENDIENTE</option><option>BORRADOR</option></select></div>
+        </div>
+        <div class="mt-2"><label class="form-label small">País</label><input id="docPais" class="form-control" value="PERU"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary">Guardar</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Modal usuario -->
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <form onsubmit="guardarUsuario(event)">
+      <div class="modal-header"><h5 class="modal-title">Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="usrId">
+        <div class="row g-2">
+          <div class="col-6"><label class="form-label small">Username</label><input id="usrUsername" class="form-control" required></div>
+          <div class="col-6"><label class="form-label small">Contraseña <span id="usrPassHint" class="text-muted"></span></label><input id="usrPassword" type="password" class="form-control" minlength="8"></div>
+          <div class="col-6"><label class="form-label small">Nombre</label><input id="usrNombre" class="form-control" required></div>
+          <div class="col-6"><label class="form-label small">Correo</label><input id="usrCorreo" type="email" class="form-control" required></div>
+          <div class="col-6"><label class="form-label small">Rol</label><select id="usrRol" class="form-select"></select></div>
+          <div class="col-6"><label class="form-label small">Departamento</label><select id="usrDepartamento" class="form-select"></select></div>
+          <div class="col-4"><label class="form-label small">Nivel</label>
+            <select id="usrNivel" class="form-select"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+          <div class="col-4"><label class="form-label small">País</label><input id="usrPais" class="form-control" value="PERU"></div>
+          <div class="col-4"><label class="form-label small">Contrato</label>
+            <select id="usrContrato" class="form-select"><option>INTERNO</option><option>EXTERNO</option></select></div>
+          <div class="col-4"><label class="form-label small">Estado</label>
+            <select id="usrEstado" class="form-select"><option>ACTIVO</option><option>INACTIVO</option><option>SUSPENDIDO</option></select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary">Guardar</button></div>
+    </form>
+  </div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let token = sessionStorage.getItem("token");
+let yo = null;
+let docsCache = [], usuariosCache = [];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function cabeceras() {
+  const h = {"Content-Type": "application/json", "X-Ubicacion": $("envUbicacion").value, "X-Dispositivo": $("envDispositivo").value};
+  if ($("envHora").value) h["X-Hora"] = $("envHora").value;
+  if (token) h["Authorization"] = "Bearer " + token;
+  return h;
+}
+
+async function api(metodo, ruta, body) {
+  const r = await fetch(ruta, {method: metodo, headers: cabeceras(), body: body ? JSON.stringify(body) : undefined});
+  if (r.status === 204) return null;
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const d = data.detail;
+    const msg = typeof d === "object" && d && d.resultado
+      ? `<b>ACCESO ${esc(d.resultado)}</b> (etapa ${esc(d.etapa)}): ${esc(d.motivo)}`
+      : esc(typeof d === "string" ? d : JSON.stringify(d));
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function alerta(html, tipo = "danger") {
+  $("alerta").innerHTML = `<div class="alert alert-${tipo} alert-dismissible py-2">${html}<button class="btn-close" data-bs-dismiss="alert"></button></div>`;
+}
+async function intentar(fn, ok) {
+  try { const r = await fn(); if (ok) alerta(ok, "success"); return r; } catch (e) { alerta(e.message); }
+}
+
+async function login(ev) {
+  ev.preventDefault();
+  await intentar(async () => {
+    const r = await api("POST", "/auth/login", {username: $("loginUser").value, password: $("loginPass").value});
+    token = r.access_token; sessionStorage.setItem("token", token);
+    $("alerta").innerHTML = "";
+    await iniciar();
+  });
+}
+
+async function logout() {
+  try { await api("POST", "/auth/logout"); } catch (_) {}
+  token = null; sessionStorage.removeItem("token");
+  $("vistaApp").classList.add("d-none"); $("navUsuario").classList.add("d-none");
+  $("vistaLogin").classList.remove("d-none");
+}
+
+async function iniciar() {
+  try { yo = await api("GET", "/auth/me"); } catch (e) { token = null; sessionStorage.removeItem("token"); return; }
+  const u = yo.usuario;
+  $("vistaLogin").classList.add("d-none"); $("vistaApp").classList.remove("d-none"); $("navUsuario").classList.remove("d-none");
+  $("navNombre").textContent = `${u.nombre} (${u.rol})`;
+  $("perfil").innerHTML = `<b>${esc(u.username)}</b> · rol <b>${esc(u.rol)}</b> · depto. <b>${esc(u.departamento)}</b> · nivel <b>${u.nivel_seguridad}</b> · país ${esc(u.pais)} · ${esc(u.tipo_contrato)} · ${esc(u.estado)}<br>
+    <span class="text-muted">Permisos RBAC: ${yo.permisos.map(esc).join(", ")}</span>`;
+  const [roles, deps] = await Promise.all([api("GET", "/roles"), api("GET", "/departamentos")]);
+  const opts = arr => arr.map(x => `<option value="${esc(x.codigo)}">${esc(x.codigo)}</option>`).join("");
+  $("docDepartamento").innerHTML = $("usrDepartamento").innerHTML = opts(deps);
+  $("usrRol").innerHTML = opts(roles);
+  mostrarTab("docs");
+}
+
+document.querySelectorAll("[data-tab]").forEach(a => a.addEventListener("click", ev => { ev.preventDefault(); mostrarTab(a.dataset.tab); }));
+function mostrarTab(t) {
+  document.querySelectorAll("[data-tab]").forEach(a => a.classList.toggle("active", a.dataset.tab === t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s => s.classList.toggle("d-none", s.id !== "tab-" + t));
+  $("alerta").innerHTML = "";
+  ({docs: cargarDocs, usuarios: cargarUsuarios, politicas: cargarPoliticas, rbac: cargarRbac, auditoria: cargarAuditoria})[t]();
+}
+
+const colorNivel = n => ["secondary","success","info","warning","danger","dark"][n] || "secondary";
+
+async function cargarDocs() {
+  const docs = await intentar(() => api("GET", "/documentos"));
+  if (!docs) { $("tablaDocs").innerHTML = ""; return; }
+  docsCache = docs;
+  $("tablaDocs").innerHTML = docs.map(d => `<tr>
+    <td>${d.id}</td><td>${esc(d.titulo)}</td><td>${esc(d.departamento)}</td>
+    <td><span class="badge badge-nivel text-bg-${colorNivel(d.nivel_confidencialidad)}">${d.nivel_confidencialidad}</span></td>
+    <td>${esc(d.estado)}</td><td>${esc(d.propietario)}</td>
+    <td class="text-end text-nowrap">
+      <button class="btn btn-sm btn-outline-secondary" onclick="verDoc(${d.id})">Ver</button>
+      <button class="btn btn-sm btn-outline-primary" onclick="abrirDoc(${d.id})">Editar</button>
+      <button class="btn btn-sm btn-outline-success" onclick="accionDoc(${d.id}, 'aprobar')">Aprobar</button>
+      <button class="btn btn-sm btn-outline-info" onclick="accionDoc(${d.id}, 'publicar')">Publicar</button>
+      <button class="btn btn-sm btn-outline-danger" onclick="eliminarDoc(${d.id})">Eliminar</button>
+    </td></tr>`).join("") || `<tr><td colspan="7" class="text-muted">No tienes documentos visibles con este entorno.</td></tr>`;
+}
+
+async function verDoc(id) {
+  const d = await intentar(() => api("GET", `/documentos/${id}`));
+  if (d) alerta(`<b>Acceso permitido.</b><pre class="json mb-0">${esc(JSON.stringify(d, null, 2))}</pre>`, "success");
+}
+function consultarDoc() { if ($("docIdBuscar").value) verDoc($("docIdBuscar").value); }
+
+function abrirDoc(id) {
+  const d = docsCache.find(x => x.id === id);
+  $("modalDocTitulo").textContent = d ? `Editar documento #${d.id}` : "Nuevo documento";
+  $("docId").value = d ? d.id : "";
+  $("docTitulo").value = d ? d.titulo : "";
+  $("docDescripcion").value = d ? d.descripcion : "";
+  $("docDepartamento").value = d ? d.departamento : yo.usuario.departamento;
+  $("docNivel").value = d ? d.nivel_confidencialidad : 1;
+  $("docEstado").value = d && ["BORRADOR","PENDIENTE"].includes(d.estado) ? d.estado : "PENDIENTE";
+  $("docPais").value = d ? d.pais : yo.usuario.pais;
+  bootstrap.Modal.getOrCreateInstance($("modalDoc")).show();
+}
+
+async function guardarDoc(ev) {
+  ev.preventDefault();
+  const id = $("docId").value;
+  const body = {titulo: $("docTitulo").value, descripcion: $("docDescripcion").value, departamento: $("docDepartamento").value,
+                nivel_confidencialidad: +$("docNivel").value, estado: $("docEstado").value, pais: $("docPais").value};
+  const ok = await intentar(() => id ? api("PUT", `/documentos/${id}`, body) : api("POST", "/documentos", body),
+                            id ? "Documento modificado." : "Documento creado.");
+  bootstrap.Modal.getOrCreateInstance($("modalDoc")).hide();
+  if (ok) cargarDocs();
+}
+
+async function accionDoc(id, accion) {
+  const ok = await intentar(() => api("POST", `/documentos/${id}/${accion}`), `Documento #${id}: ${accion} OK.`);
+  if (ok) cargarDocs();
+}
+
+async function eliminarDoc(id) {
+  const ok = await intentar(async () => { await api("DELETE", `/documentos/${id}`); return true; }, `Documento #${id} eliminado.`);
+  if (ok) cargarDocs();
+}
+
+async function cargarUsuarios() {
+  const us = await intentar(() => api("GET", "/usuarios"));
+  usuariosCache = us || [];
+  $("tablaUsuarios").innerHTML = usuariosCache.map(u => `<tr>
+    <td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.nombre)}</td><td>${esc(u.rol)}</td><td>${esc(u.departamento)}</td>
+    <td>${u.nivel_seguridad}</td><td>${esc(u.pais)}</td><td>${esc(u.tipo_contrato)}</td>
+    <td><span class="badge text-bg-${u.estado === "ACTIVO" ? "success" : "secondary"}">${esc(u.estado)}</span></td>
+    <td class="text-nowrap"><button class="btn btn-sm btn-outline-primary" onclick="abrirUsuario(${u.id})">Editar</button>
+      <button class="btn btn-sm btn-outline-${u.estado === "ACTIVO" ? "warning" : "success"}" onclick="toggleUsuario(${u.id}, '${u.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO"}')">${u.estado === "ACTIVO" ? "Desactivar" : "Activar"}</button></td>
+  </tr>`).join("");
+}
+
+function abrirUsuario(id) {
+  const u = usuariosCache.find(x => x.id === id);
+  $("usrId").value = u ? u.id : "";
+  $("usrUsername").value = u ? u.username : ""; $("usrUsername").disabled = !!u;
+  $("usrPassword").value = ""; $("usrPassword").required = !u;
+  $("usrPassHint").textContent = u ? "(vacío = no cambiar)" : "";
+  $("usrNombre").value = u ? u.nombre : ""; $("usrCorreo").value = u ? u.correo : "";
+  $("usrRol").value = u ? u.rol : "EMPLEADO"; $("usrDepartamento").value = u ? u.departamento : "FINANZAS";
+  $("usrNivel").value = u ? u.nivel_seguridad : 1; $("usrPais").value = u ? u.pais : "PERU";
+  $("usrContrato").value = u ? u.tipo_contrato : "INTERNO"; $("usrEstado").value = u ? u.estado : "ACTIVO";
+  bootstrap.Modal.getOrCreateInstance($("modalUsuario")).show();
+}
+
+async function guardarUsuario(ev) {
+  ev.preventDefault();
+  const id = $("usrId").value;
+  const body = {nombre: $("usrNombre").value, correo: $("usrCorreo").value, rol: $("usrRol").value,
+                departamento: $("usrDepartamento").value, nivel_seguridad: +$("usrNivel").value, pais: $("usrPais").value,
+                tipo_contrato: $("usrContrato").value, estado: $("usrEstado").value};
+  if ($("usrPassword").value) body.password = $("usrPassword").value;
+  if (!id) body.username = $("usrUsername").value;
+  const ok = await intentar(() => id ? api("PUT", `/usuarios/${id}`, body) : api("POST", "/usuarios", body), "Usuario guardado.");
+  bootstrap.Modal.getOrCreateInstance($("modalUsuario")).hide();
+  if (ok) cargarUsuarios();
+}
+
+async function toggleUsuario(id, estado) {
+  const ok = await intentar(() => api("PUT", `/usuarios/${id}`, {estado}), `Usuario ${estado}.`);
+  if (ok) cargarUsuarios();
+}
+
+async function cargarPoliticas() {
+  const ps = await intentar(() => api("GET", "/politicas"));
+  $("listaPoliticas").innerHTML = (ps || []).map(p => `<div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between">
+      <h6 class="mb-1">${esc(p.nombre)} <code class="small">${esc(p.codigo)}</code></h6>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" ${p.activa ? "checked" : ""}
+        onchange="guardarPolitica('${p.codigo}', {activa: this.checked})"></div>
+    </div>
+    <p class="small mb-1">${esc(p.descripcion)}</p>
+    <code class="small d-block mb-2">${esc(p.expresion)}</code>
+    <textarea class="form-control form-control-sm font-monospace" rows="4" id="par-${p.codigo}">${esc(JSON.stringify(p.parametros, null, 2))}</textarea>
+    <button class="btn btn-sm btn-outline-primary mt-2" onclick="guardarParametros('${p.codigo}')">Guardar parámetros</button>
+  </div></div></div>`).join("");
+}
+
+async function guardarPolitica(codigo, body) {
+  await intentar(() => api("PUT", `/politicas/${codigo}`, body), `Política ${codigo} actualizada.`);
+  cargarPoliticas();
+}
+function guardarParametros(codigo) {
+  let parametros;
+  try { parametros = JSON.parse($("par-" + codigo).value); } catch (e) { alerta("JSON inválido"); return; }
+  guardarPolitica(codigo, {parametros});
+}
+
+async function cargarRbac() {
+  const m = await intentar(() => api("GET", "/rbac/matriz"));
+  if (!m) return;
+  $("tablaRbac").innerHTML = `<thead><tr><th class="text-start">Operación</th>${m.roles.map(r => `<th>${esc(r)}</th>`).join("")}</tr></thead>
+    <tbody>${m.permisos.map(p => `<tr><td class="text-start">${esc(p.nombre)} <code class="small">${esc(p.codigo)}</code></td>
+      ${m.roles.map(r => `<td>${p.roles[r] ? "✅" : "❌"}</td>`).join("")}</tr>`).join("")}</tbody>`;
+}
+
+async function cargarAuditoria() {
+  const q = $("filtroResultado").value ? `?resultado=${$("filtroResultado").value}` : "";
+  const regs = await intentar(() => api("GET", "/auditoria" + q));
+  $("tablaAuditoria").innerHTML = (regs || []).map(a => `<tr class="${a.resultado === "DENEGADO" ? "table-danger" : ""}">
+    <td class="text-nowrap">${esc(a.fecha.replace("T", " "))}</td><td>${esc(a.usuario)}</td><td>${esc(a.recurso)}</td><td>${esc(a.accion)}</td>
+    <td>${esc(a.resultado)}</td><td>${esc(a.etapa)}</td><td>${esc(a.motivo)}</td>
+    <td class="text-nowrap">${esc(a.ubicacion)} · ${esc(a.dispositivo)} · ${esc(a.direccion_ip)}</td></tr>`).join("");
+}
+
+if (token) iniciar();
+</script>
+</body>
+</html>
