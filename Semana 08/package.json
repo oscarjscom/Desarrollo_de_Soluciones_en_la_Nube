@@ -1,0 +1,16 @@
+{
+  "name": "lab-s08-techstore",
+  "version": "1.0.0",
+  "description": "TechStore - gestión de inventario con roles, MFA (TOTP) y login social",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node test/smoke.js" },
+  "engines": { "node": ">=22.13" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "otplib": "^12.0.1",
+    "qrcode": "^1.5.4"
+  }
+}

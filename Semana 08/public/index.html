@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechStore · Inventario seguro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#2563eb;--brand-d:#1d4ed8;--brand-soft:#eaf1ff;
+--ok:#059669;--ok-soft:#e6f7f0;--danger:#dc2626;--danger-soft:#fdecec;--warn:#d97706;--warn-soft:#fff4e0;--radius:14px;
+--shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06)}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}button,input,select{font:inherit}
+/* auth */
+.auth{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr}
+.hero{background:#0b1220;color:#e5ecff;padding:56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-140px;bottom:-170px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(37,99,235,.55),rgba(37,99,235,0) 65%)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.logo-mark svg{width:20px;height:20px}
+.hero h1{font-size:38px;line-height:1.12;letter-spacing:-.03em;margin:0 0 14px;max-width:440px}
+.hero p{color:#9fb0d6;max-width:420px;line-height:1.6;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px;position:relative;z-index:1}
+.chips span{border:1px solid rgba(159,176,214,.25);border-radius:999px;padding:6px 12px;font-size:12.5px;color:#c7d4f3}
+.panel{display:grid;place-items:center;padding:32px 20px;background:var(--card)}
+.box{width:100%;max-width:400px}
+.box h2{font-size:26px;letter-spacing:-.02em;margin:0 0 6px}.sub{color:var(--muted);margin:0 0 22px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:20px}
+.tabs button{border:0;background:transparent;padding:9px;border-radius:8px;font-weight:600;color:var(--muted);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(15,23,42,.1)}
+label{display:block;font-size:13px;font-weight:600;margin:0 0 6px}.field{margin-bottom:14px}
+input,select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:11px 16px;font-weight:600;cursor:pointer;transition:background .15s,transform .05s}
+.btn:active{transform:translateY(1px)}.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-d)}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:var(--danger-soft);color:var(--danger)}.btn-danger:hover{background:#fbdcdc}
+.btn-block{width:100%}.btn-sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.social{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12.5px;margin:18px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.msg{min-height:20px;font-size:13.5px;margin-top:12px}.msg.err{color:var(--danger)}.msg.ok{color:var(--ok)}
+.qr{display:grid;place-items:center;background:var(--bg);border-radius:12px;padding:14px;margin:10px 0}
+.qr img{width:200px;height:200px;border-radius:8px;background:#fff}
+.secret{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--bg);padding:8px 10px;border-radius:8px;word-break:break-all;text-align:center}
+.code{letter-spacing:.5em;text-align:center;font-size:22px;font-weight:600}
+.link{background:none;border:0;color:var(--brand);cursor:pointer;font-weight:600;padding:0}
+/* app */
+.topbar{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.topbar .logo{color:var(--ink)}.spacer{flex:1}
+.user{display:flex;align-items:center;gap:10px;font-size:14px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;text-transform:uppercase}
+.role{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.role.admin{background:#f3e8ff;color:#7e22ce}.role.auditor{background:var(--warn-soft);color:var(--warn)}.role.empleado{background:var(--ok-soft);color:var(--ok)}
+main{max-width:1120px;margin:0 auto;padding:26px 20px 60px}
+.nav{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.nav button{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:999px;font-weight:600;color:var(--muted);cursor:pointer}
+.nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.head h2{margin:0;font-size:24px;letter-spacing:-.02em}.head p{margin:4px 0 0;color:var(--muted)}
+.perm{background:var(--brand-soft);color:#1e40af;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.stat{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow)}
+.stat small{color:var(--muted);font-weight:500}.stat b{display:block;font-size:24px;letter-spacing:-.02em;margin-top:6px}
+.grid{display:grid;grid-template-columns:310px 1fr;gap:18px;align-items:start}
+.grid.single{grid-template-columns:1fr}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-h{padding:16px 20px;border-bottom:1px solid var(--line);font-weight:600}.card-b{padding:20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:12px 16px;background:#fafbfe}
+td{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;vertical-align:middle}
+.num{text-align:right}tr:hover td{background:#fafcff}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.low{background:var(--warn-soft);color:var(--warn)}.pill.zero,.pill.bad{background:var(--danger-soft);color:var(--danger)}
+.acts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.scroll{overflow-x:auto}
+.stock-in{width:78px;padding:6px 8px}
+.toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);transform:translateY(20px);opacity:0;transition:.25s;z-index:20;font-size:14px;max-width:340px}
+.toast.show{transform:none;opacity:1}
+@media (max-width:900px){.auth{grid-template-columns:1fr}.hero{display:none}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.user .name{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ Acceso ============ -->
+<section id="auth" class="auth">
+  <div class="hero">
+    <div class="logo"><div class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>TechStore</div>
+    <div>
+      <h1>Inventario con seguridad de nivel empresarial</h1>
+      <p>Control de acceso por roles, bloqueo de cuentas, autenticación de dos factores y registro de auditoría para proteger los datos de tus tiendas.</p>
+      <div class="chips"><span>Roles y permisos</span><span>JWT</span><span>MFA con TOTP</span><span>Google · GitHub</span><span>Auditoría</span></div>
+    </div>
+    <div style="font-size:13px;color:#7f92bd">Desarrollo de Soluciones en la Nube</div>
+  </div>
+
+  <div class="panel"><div class="box">
+    <!-- login / registro -->
+    <div id="viewLogin">
+      <h2 id="authTitle">Bienvenido</h2>
+      <p class="sub" id="authSub">Ingresa con tu cuenta de TechStore.</p>
+      <div class="tabs"><button id="tabLogin" class="on" type="button">Ingresar</button><button id="tabReg" type="button">Crear cuenta</button></div>
+      <form id="authForm" novalidate>
+        <div class="field hidden" data-reg><label for="fullName">Nombre completo</label><input id="fullName" autocomplete="name" placeholder="Ana Torres Ruiz"></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+        <div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+          <div class="hint hidden" data-reg>Mínimo 8 caracteres, con una mayúscula, un número y un carácter especial.</div></div>
+        <div class="field hidden" data-reg><label for="store">Tienda asignada</label><select id="store"></select></div>
+        <button class="btn btn-primary btn-block" id="authBtn" type="submit">Ingresar</button>
+        <div class="msg" id="msg"></div>
+      </form>
+      <div class="divider">o continúa con</div>
+      <div class="social">
+        <button class="btn btn-ghost" id="gBtn" type="button">Google</button>
+        <button class="btn btn-ghost" id="ghBtn" type="button">GitHub</button>
+      </div>
+    </div>
+
+    <!-- MFA -->
+    <div id="viewMfa" class="hidden">
+      <h2>Verificación en dos pasos</h2>
+      <p class="sub" id="mfaSub">Ingresa el código de 6 dígitos de tu app de autenticación.</p>
+      <div id="setupBox" class="hidden">
+        <p class="hint" style="font-size:13.5px;margin:0 0 6px">1. Escanea este código con Google Authenticator (o similar).<br>2. Escribe el código que muestra la app para activar el MFA.</p>
+        <div class="qr"><img id="qrImg" alt="Código QR para la app de autenticación"></div>
+        <div class="hint">¿No puedes escanear? Clave manual:</div>
+        <div class="secret" id="secretTxt"></div>
+      </div>
+      <form id="mfaForm" style="margin-top:16px" novalidate>
+        <div class="field"><label for="mfaCode">Código de 6 dígitos</label><input id="mfaCode" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+        <button class="btn btn-primary btn-block" type="submit" id="mfaBtn">Verificar</button>
+        <div class="msg" id="mfaMsg"></div>
+      </form>
+      <p style="text-align:center;margin:8px 0 0"><button class="link" id="mfaBack" type="button">Volver al inicio de sesión</button></p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ Aplicación ============ -->
+<div id="app" class="hidden">
+  <header class="topbar"><div class="topbar-in">
+    <div class="logo"><div class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>TechStore</div>
+    <div class="spacer"></div>
+    <div class="user"><div class="avatar" id="av">?</div><div><div class="name" id="uname" style="font-weight:600;line-height:1.1"></div><div style="font-size:12px;color:var(--muted)" id="ustore"></div></div><span class="role" id="urole"></span><button class="btn btn-ghost btn-sm" id="logout" type="button">Salir</button></div>
+  </div></header>
+
+  <main>
+    <div class="nav" id="nav"></div>
+
+    <section id="pgProducts">
+      <div class="head"><div><h2>Productos</h2><p>Inventario de todas las tiendas.</p></div></div>
+      <div class="perm" id="permBox"></div>
+      <div class="stats"><div class="stat"><small>Productos</small><b id="sCount">0</b></div><div class="stat"><small>Unidades</small><b id="sUnits">0</b></div><div class="stat"><small>Valor del inventario</small><b id="sValue">S/ 0.00</b></div></div>
+      <div class="grid">
+        <div class="card" id="formCard"><div class="card-h" id="formTitle">Nuevo producto</div>
+          <form class="card-b" id="pForm" novalidate>
+            <input type="hidden" id="pid">
+            <div class="field"><label for="pname">Nombre</label><input id="pname" placeholder="Ej. Laptop"></div>
+            <div class="row2"><div class="field"><label for="pprice">Precio</label><input id="pprice" type="number" step="0.01" min="0"></div>
+            <div class="field"><label for="pstock">Stock</label><input id="pstock" type="number" step="1" min="0"></div></div>
+            <div class="field" id="pstoreWrap"><label for="pstore">Tienda</label><select id="pstore"></select></div>
+            <div style="display:flex;gap:10px"><button class="btn btn-primary" type="submit" id="pSave">Guardar</button><button class="btn btn-ghost" type="button" id="pCancel">Limpiar</button></div>
+          </form></div>
+        <div class="card"><div class="card-h">Listado</div><div class="scroll"><table><thead><tr><th>Producto</th><th>Tienda</th><th class="num">Precio</th><th>Stock</th><th></th></tr></thead><tbody id="ptb"></tbody></table></div>
+          <div class="empty hidden" id="pEmpty">Aún no hay productos.</div></div>
+      </div>
+    </section>
+
+    <section id="pgReports" class="hidden">
+      <div class="head"><div><h2>Reportes</h2><p id="repSub"></p></div></div>
+      <div class="card"><div class="scroll"><table><thead><tr><th>Tienda</th><th class="num">Productos</th><th class="num">Unidades</th><th class="num">Valor</th><th class="num">Stock bajo</th></tr></thead><tbody id="rtb"></tbody></table></div><div class="empty hidden" id="rEmpty">Sin datos para reportar.</div></div>
+    </section>
+
+    <section id="pgUsers" class="hidden">
+      <div class="head"><div><h2>Usuarios y roles</h2><p>Asigna roles y tiendas, y desbloquea cuentas.</p></div></div>
+      <div class="card"><div class="scroll"><table><thead><tr><th>Usuario</th><th>Acceso</th><th>Rol</th><th>Tienda</th><th>MFA</th><th></th></tr></thead><tbody id="utb"></tbody></table></div></div>
+    </section>
+
+    <section id="pgAudit" class="hidden">
+      <div class="head"><div><h2>Auditoría</h2><p>Últimos 200 eventos de seguridad.</p></div><button class="btn btn-ghost btn-sm" id="aRefresh" type="button">↻ Actualizar</button></div>
+      <div class="card"><div class="scroll"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Evento</th><th>Detalle</th></tr></thead><tbody id="atb"></tbody></table></div></div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = (n) => 'S/ ' + Number(n).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const ROLE_LABEL = { admin: 'Administrador', gerente: 'Gerente de tienda', empleado: 'Empleado de ventas', auditor: 'Auditor' };
+const PERMS = {
+  admin: 'Acceso total: gestionas productos, usuarios, roles y la configuración del sistema.',
+  gerente: 'Gestionas los productos de tu tienda y ves sus reportes. No puedes modificar ni eliminar productos de otras tiendas.',
+  empleado: 'Puedes consultar productos y actualizar el stock en tiempo real. No puedes modificar precios.',
+  auditor: 'Acceso de solo lectura a los datos y reportes. No puedes modificar nada.',
+};
+let cfg = { stores: [], google: false, github: false }, me = null, products = [], regMode = false, toastT;
+
+async function api(url, method = 'GET', body) {
+  const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(d.error || 'Error'); e.status = r.status; e.data = d; throw e; }
+  return d;
+}
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3000); }
+function say(id, text, ok) { const el = $(id); el.textContent = text || ''; el.className = 'msg ' + (text ? (ok ? 'ok' : 'err') : ''); }
+
+/* ---------- acceso ---------- */
+function setMode(reg) {
+  regMode = reg;
+  $('tabLogin').classList.toggle('on', !reg); $('tabReg').classList.toggle('on', reg);
+  document.querySelectorAll('[data-reg]').forEach((e) => e.classList.toggle('hidden', !reg));
+  $('authBtn').textContent = reg ? 'Crear cuenta' : 'Ingresar';
+  $('authTitle').textContent = reg ? 'Crea tu cuenta' : 'Bienvenido';
+  $('authSub').textContent = reg ? 'Regístrate para acceder al inventario.' : 'Ingresa con tu cuenta de TechStore.';
+  $('password').autocomplete = reg ? 'new-password' : 'current-password';
+  say('msg', '');
+}
+$('tabLogin').onclick = () => setMode(false);
+$('tabReg').onclick = () => setMode(true);
+
+function showView(v) { $('viewLogin').classList.toggle('hidden', v !== 'login'); $('viewMfa').classList.toggle('hidden', v !== 'mfa'); }
+
+$('authForm').onsubmit = async (e) => {
+  e.preventDefault(); say('msg', ''); $('authBtn').disabled = true;
+  try {
+    if (regMode) {
+      await api('/api/register', 'POST', { full_name: $('fullName').value, email: $('email').value, password: $('password').value, store: $('store').value });
+      setMode(false); $('password').value = ''; say('msg', 'Cuenta creada. Ahora ingresa.', true);
+    } else {
+      const r = await api('/api/login', 'POST', { email: $('email').value, password: $('password').value });
+      $('password').value = ''; await openMfa(r.status === 'mfa_setup');
+    }
+  } catch (err) { say('msg', err.message); }
+  $('authBtn').disabled = false;
+};
+
+async function openMfa(setup) {
+  showView('mfa'); $('mfaCode').value = ''; say('mfaMsg', '');
+  $('setupBox').classList.toggle('hidden', !setup);
+  $('mfaSub').textContent = setup ? 'Activa la verificación en dos pasos para proteger tu cuenta.' : 'Ingresa el código de 6 dígitos de tu app de autenticación.';
+  if (setup) { const d = await api('/api/mfa/setup'); $('qrImg').src = d.qr; $('secretTxt').textContent = d.secret; }
+  $('mfaCode').focus();
+}
+$('mfaForm').onsubmit = async (e) => {
+  e.preventDefault(); say('mfaMsg', ''); $('mfaBtn').disabled = true;
+  try { const r = await api('/api/mfa/verify', 'POST', { code: $('mfaCode').value }); await enter(r.user); }
+  catch (err) {
+    say('mfaMsg', err.message);
+    if (err.data && err.data.restart) setTimeout(() => { showView('login'); say('msg', err.message); }, 1500);
+  }
+  $('mfaBtn').disabled = false;
+};
+$('mfaBack').onclick = async () => { await api('/api/logout', 'POST'); showView('login'); };
+$('gBtn').onclick = () => { location.href = '/auth/google'; };
+$('ghBtn').onclick = () => { location.href = '/auth/github'; };
+$('logout').onclick = async () => { await api('/api/logout', 'POST'); location.href = '/'; };
+
+/* ---------- aplicación ---------- */
+const PAGES = [
+  ['pgProducts', 'Productos', ['admin', 'gerente', 'empleado', 'auditor']],
+  ['pgReports', 'Reportes', ['admin', 'gerente', 'auditor']],
+  ['pgUsers', 'Usuarios y roles', ['admin']],
+  ['pgAudit', 'Auditoría', ['admin', 'auditor']],
+];
+async function enter(user) {
+  me = user;
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('av').textContent = user.full_name.charAt(0); $('uname').textContent = user.full_name; $('ustore').textContent = user.store;
+  $('urole').textContent = ROLE_LABEL[user.role]; $('urole').className = 'role ' + user.role;
+  $('permBox').textContent = PERMS[user.role];
+  $('nav').innerHTML = PAGES.filter((p) => p[2].includes(user.role)).map((p) => `<button data-p="${p[0]}">${p[1]}</button>`).join('');
+  const canCreate = ['admin', 'gerente'].includes(user.role);
+  $('formCard').classList.toggle('hidden', !canCreate);
+  document.querySelector('#pgProducts .grid').classList.toggle('single', !canCreate);
+  $('pstoreWrap').classList.toggle('hidden', user.role !== 'admin');
+  go('pgProducts');
+}
+function go(page) {
+  PAGES.forEach((p) => $(p[0]).classList.toggle('hidden', p[0] !== page));
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.p === page));
+  ({ pgProducts: loadProducts, pgReports: loadReports, pgUsers: loadUsers, pgAudit: loadAudit })[page]().catch((e) => toast(e.message));
+}
+$('nav').onclick = (e) => { const b = e.target.closest('button'); if (b) go(b.dataset.p); };
+
+const canEdit = (p) => me.role === 'admin' || (me.role === 'gerente' && p.store === me.store);
+async function loadProducts() {
+  products = await api('/api/products');
+  $('ptb').innerHTML = products.map((p) => {
+    const stockCell = me.role === 'empleado'
+      ? `<input class="stock-in" type="number" min="0" value="${p.stock}" data-stock="${p.id}"> <button class="btn btn-ghost btn-sm" data-save="${p.id}">Actualizar</button>`
+      : (p.stock === 0 ? '<span class="pill zero">Agotado</span>' : p.stock < 5 ? `<span class="pill low">${p.stock} · bajo</span>` : `<span class="pill ok">${p.stock}</span>`);
+    const acts = canEdit(p) ? `<div class="acts"><button class="btn btn-ghost btn-sm" data-e="${p.id}">Editar</button><button class="btn btn-danger btn-sm" data-d="${p.id}">Borrar</button></div>` : '';
+    return `<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.store)}</td><td class="num">${money(p.price)}</td><td>${stockCell}</td><td>${acts}</td></tr>`;
+  }).join('');
+  $('pEmpty').classList.toggle('hidden', products.length > 0);
+  $('sCount').textContent = products.length;
+  $('sUnits').textContent = products.reduce((a, p) => a + p.stock, 0);
+  $('sValue').textContent = money(products.reduce((a, p) => a + p.stock * p.price, 0));
+}
+$('ptb').onclick = async (e) => {
+  const ed = e.target.closest('[data-e]'), de = e.target.closest('[data-d]'), sv = e.target.closest('[data-save]');
+  try {
+    if (ed) {
+      const p = products.find((x) => x.id === Number(ed.dataset.e));
+      $('pid').value = p.id; $('pname').value = p.name; $('pprice').value = p.price; $('pstock').value = p.stock; $('pstore').value = p.store;
+      $('formTitle').textContent = 'Editar producto #' + p.id; $('pname').focus();
+    }
+    if (de && confirm('¿Eliminar este producto?')) { await api('/api/products/' + de.dataset.d, 'DELETE'); toast('Producto eliminado'); loadProducts(); }
+    if (sv) { const v = document.querySelector(`[data-stock="${sv.dataset.save}"]`).value; await api(`/api/products/${sv.dataset.save}/stock`, 'PATCH', { stock: Number(v) }); toast('Stock actualizado'); loadProducts(); }
+  } catch (err) { toast(err.message); }
+};
+function clearForm() { ['pid', 'pname', 'pprice', 'pstock'].forEach((i) => $(i).value = ''); $('formTitle').textContent = 'Nuevo producto'; }
+$('pCancel').onclick = clearForm;
+$('pForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const b = { name: $('pname').value, price: $('pprice').value, stock: $('pstock').value, store: $('pstore').value }, id = $('pid').value;
+  try {
+    if (me.role === 'empleado') {
+      if (!id) return toast('Como empleado solo puedes actualizar el stock de productos existentes');
+      await api(`/api/products/${id}/stock`, 'PATCH', { stock: Number(b.stock) });
+    } else if (id) await api('/api/products/' + id, 'PUT', b); else await api('/api/products', 'POST', b);
+    toast('Guardado'); clearForm(); loadProducts();
+  } catch (err) { toast(err.message); }
+};
+
+async function loadReports() {
+  const rows = await api('/api/reports');
+  $('repSub').textContent = me.role === 'gerente' ? 'Reporte de tu tienda: ' + me.store : 'Resumen por tienda.';
+  $('rtb').innerHTML = rows.map((r) => `<tr><td><b>${esc(r.store)}</b></td><td class="num">${r.products}</td><td class="num">${r.units}</td><td class="num">${money(r.value)}</td><td class="num">${r.low ? `<span class="pill low">${r.low}</span>` : '0'}</td></tr>`).join('');
+  $('rEmpty').classList.toggle('hidden', rows.length > 0);
+}
+async function loadUsers() {
+  const us = await api('/api/users');
+  const roleSel = (u) => `<select data-role="${u.id}">${Object.keys(ROLE_LABEL).map((r) => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select>`;
+  const storeSel = (u) => `<select data-ustore="${u.id}">${cfg.stores.map((s) => `<option ${u.store === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>`;
+  $('utb').innerHTML = us.map((u) => `<tr><td><b>${esc(u.full_name)}</b><div class="hint">${esc(u.email)} · ${esc(u.provider)}</div></td>
+    <td>${u.locked ? '<span class="pill bad">Bloqueada</span>' : '<span class="pill ok">Activa</span>'}</td><td>${roleSel(u)}</td><td>${storeSel(u)}</td>
+    <td>${u.totp_enabled ? '<span class="pill ok">Activo</span>' : '<span class="pill low">Pendiente</span>'}</td>
+    <td><div class="acts"><button class="btn btn-ghost btn-sm" data-usave="${u.id}">Guardar</button>${u.locked ? `<button class="btn btn-ghost btn-sm" data-unlock="${u.id}">Desbloquear</button>` : ''}</div></td></tr>`).join('');
+}
+$('utb').onclick = async (e) => {
+  const s = e.target.closest('[data-usave]'), u = e.target.closest('[data-unlock]');
+  try {
+    if (s) { const id = s.dataset.usave; await api('/api/users/' + id, 'PATCH', { role: document.querySelector(`[data-role="${id}"]`).value, store: document.querySelector(`[data-ustore="${id}"]`).value }); toast('Usuario actualizado'); loadUsers(); }
+    if (u) { await api(`/api/users/${u.dataset.unlock}/unlock`, 'POST'); toast('Cuenta desbloqueada'); loadUsers(); }
+  } catch (err) { toast(err.message); }
+};
+async function loadAudit() {
+  const rows = await api('/api/audit');
+  $('atb').innerHTML = rows.map((r) => `<tr><td style="white-space:nowrap">${new Date(r.at).toLocaleString('es-PE')}</td><td>${esc(r.user_email || '—')}</td><td><span class="pill ${/FALLIDO|BLOQUE|DENEGADO/.test(r.event) ? 'bad' : 'ok'}">${esc(r.event)}</span></td><td>${esc(r.detail || '')}</td></tr>`).join('');
+}
+$('aRefresh').onclick = () => loadAudit().then(() => toast('Actualizado'));
+
+/* ---------- arranque ---------- */
+(async function init() {
+  cfg = await api('/api/config');
+  const opts = cfg.stores.map((s) => `<option>${esc(s)}</option>`).join('');
+  $('store').innerHTML = opts; $('pstore').innerHTML = opts;
+  $('gBtn').disabled = !cfg.google; $('ghBtn').disabled = !cfg.github;
+  if (!cfg.google) $('gBtn').title = 'Falta configurar GOOGLE_CLIENT_ID/SECRET en .env';
+  if (!cfg.github) $('ghBtn').title = 'Falta configurar GITHUB_CLIENT_ID/SECRET en .env';
+  const err = new URLSearchParams(location.search).get('error');
+  if (err) { say('msg', err); history.replaceState({}, '', '/'); }
+  const s = await api('/api/session');
+  if (s.state === 'ok') await enter(s.user);
+  else if (s.state === 'mfa_required') await openMfa(false);
+  else if (s.state === 'mfa_setup') await openMfa(true);
+})();
+</script>
+</body>
+</html>
