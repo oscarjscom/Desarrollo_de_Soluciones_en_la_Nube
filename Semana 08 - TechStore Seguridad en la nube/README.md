@@ -30,7 +30,7 @@
 ## Cómo ejecutarlo
 
 ```bash
-cd "Semana 08"
+cd "Semana 08 - TechStore Seguridad en la nube"
 npm install
 npm start
 ```

@@ -49,7 +49,7 @@ Laboratorio_06/
 
 ```bash
 git clone https://github.com/oscarjscom/Desarrollo_de_Soluciones_en_la_Nube.git
-cd "Desarrollo_de_Soluciones_en_la_Nube/Semana 06"
+cd "Desarrollo_de_Soluciones_en_la_Nube/Semana 06 - SecureDocs RBAC y ABAC"
 
 python -m venv venv
 # Windows:      venv\Scripts\activate
@@ -62,7 +62,7 @@ uvicorn app.main:app --reload
 ### Opción 2: Docker (API + MySQL)
 
 ```bash
-cd "Desarrollo_de_Soluciones_en_la_Nube/Semana 06"
+cd "Desarrollo_de_Soluciones_en_la_Nube/Semana 06 - SecureDocs RBAC y ABAC"
 docker compose up --build
 ```
 

@@ -1,74 +1,43 @@
-# Descargador de Videos de Redes Sociales
+<div align="center">
 
-Práctica Calificada 1 - Caso 1
-Curso: Desarrollo de Soluciones en la Nube
-Alumno: Oscar Olano
+# Desarrollo de Soluciones en la Nube
 
-Hice una aplicación web con Flask y la librería yt-dlp para descargar videos de
-YouTube, TikTok, Instagram, Facebook y LinkedIn a partir de una URL. La empaqueté
-en Docker en tres versiones: una básica, una optimizada con Alpine y una con
-multi-stage build.
+**Laboratorios del curso · AWS, Docker y seguridad en la nube**
 
-> Nota: en Instagram, TikTok, Facebook y LinkedIn algunos videos no se pueden
-> descargar si son privados o piden sesión iniciada. Con videos públicos sí
-> funciona sin configurar nada extra.
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?logo=amazonaws&logoColor=white)
 
-## Requisitos
+</div>
 
-- Tener Docker Desktop instalado y corriendo.
+| | |
+|---|---|
+| **Alumno** | Oscar Olano — [@oscarjscom](https://github.com/oscarjscom) |
+| **Docente** | Jaime Farfán Madariaga |
+| **Institución** | Tecsup — Departamento de Tecnología Digital |
+| **Curso** | Desarrollo de Soluciones en la Nube — 5 C24 |
 
-## Cómo instalarlo y correrlo
+## Laboratorios
 
-1. Clonar el repo:
-   ```bash
-   git clone https://github.com/oscarjscom/Desarrollo_de_Soluciones_en_la_Nube.git
-   cd Desarrollo_de_Soluciones_en_la_Nube/pc1-caso1
-   ```
+| Carpeta | Contenido |
+|---|---|
+| [Semana 06 - SecureDocs RBAC y ABAC](<Semana 06 - SecureDocs RBAC y ABAC>) | Control de acceso con RBAC y ABAC · FastAPI |
+| [Semana 08 - TechStore Seguridad en la nube](<Semana 08 - TechStore Seguridad en la nube>) | Registro, login, MFA y roles · Node.js |
 
-2. Construir la imagen (con cualquiera de las 3 variantes):
-   ```bash
-   docker build -t descargador-videos:v1.0 .
-   # version optimizada:
-   docker build -f Dockerfile.optimizado -t descargador-videos:v1.1-alpine .
-   # version multi-stage:
-   docker build -f Dockerfile.multistage -t descargador-videos:v1.2-alpine .
-   ```
+## Práctica calificada 1
 
-3. Correr el contenedor:
-   ```bash
-   docker run -d -p 5000:5000 --name descargador-videos-container descargador-videos:v1.0
-   ```
+| Caso | Contenido |
+|---|---|
+| [Caso 1](<pc1-caso1>) | Descargador de videos de redes sociales con Flask y Docker |
+| [Caso 2](<pc1-caso2>) | Registro de miembros de mesa con Docker |
 
-4. Abrir el navegador en [http://localhost:5000](http://localhost:5000), pegar la
-   URL del video que quieras descargar y darle click a "Descargar".
+## Organización
 
-5. Para ver los logs o detenerlo:
-   ```bash
-   docker logs descargador-videos-container
-   docker stop descargador-videos-container
-   ```
+| Elemento | Contenido |
+|---|---|
+| `Semana XX - Título/` | Proyecto del laboratorio de la semana |
+| `Semana XX - Título/README.md` | Qué se hizo, capturas y cómo ejecutarlo |
+| `pc1-caso1/`, `pc1-caso2/` | Práctica calificada 1 |
 
-## Comparando el tamaño de las imágenes
-
-```bash
-docker images | grep descargador-videos
-docker history descargador-videos:v1.0
-```
-
-## URL del repositorio
-
-https://github.com/oscarjscom/Desarrollo_de_Soluciones_en_la_Nube
-
-## Conclusiones
-
-- Con Docker pude empaquetar la app junto con todo lo que necesita (Python,
-  Flask, yt-dlp, ffmpeg) para que corra igual en cualquier compu sin tener que
-  instalar nada a mano.
-- Al comparar las 3 versiones del Dockerfile noté la diferencia de tamaño entre
-  usar la imagen base `slim` (Debian) y `alpine`, y cómo con un build
-  multi-stage la imagen final queda todavía más ligera porque no incluye las
-  herramientas que solo se usan para compilar.
-- Trabajar con librerías que dependen de servicios externos (YouTube, Instagram,
-  TikTok) me hizo notar que hay que mantener actualizada la librería yt-dlp,
-  porque si no, empieza a fallar cuando esas plataformas cambian cómo entregan
-  los videos.
+Los archivos `.env` no se suben al repositorio.
