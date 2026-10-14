@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galería de fotografías</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <nav class="top-nav" aria-label="Principal">
+    <a href="#subir" class="scribble-link">Subir</a>
+    <a href="#galeria" class="scribble-link">Galería</a>
+  </nav>
+  <p class="logo">Galería<span class="logo-mark" aria-hidden="true">!</span></p>
+  <div class="top-end">
+    <button class="btn btn-small" id="refresh" type="button">Actualizar</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1 class="title-xl">Tus fotos, <span class="marker">guardadas</span> en la nube</h1>
+    <p class="lead">Sube imágenes JPG, PNG o WebP de hasta 5&nbsp;MB. Se envían directo a tu almacenamiento y solo tú puedes verlas aquí.</p>
+    <svg class="doodle-arrow" viewBox="0 0 120 70" aria-hidden="true">
+      <path d="M4 60 C 30 10, 70 10, 100 30" fill="none" stroke="#2d2d2d" stroke-width="2.5" stroke-dasharray="6 6" stroke-linecap="round"/>
+      <path d="M88 24 L101 32 L92 42" fill="none" stroke="#ff4d4d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </section>
+
+  <section id="subir" class="upload-card" aria-labelledby="subir-titulo">
+    <span class="tape" aria-hidden="true"></span>
+    <h2 id="subir-titulo" class="title-md">Agrega una foto</h2>
+
+    <label id="drop" class="drop" for="file">
+      <input id="file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <span class="drop-title">Arrastra una imagen aquí</span>
+      <span class="drop-sub">o haz clic para elegir un archivo</span>
+    </label>
+
+    <div class="upload-row">
+      <span id="picked" class="picked"></span>
+      <button id="uploadBtn" class="btn btn-accent" type="button" disabled>Subir imagen</button>
+    </div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="galeria" class="gallery-section" aria-labelledby="galeria-titulo">
+    <div class="gallery-head">
+      <h2 id="galeria-titulo" class="title-lg">Tu galería</h2>
+      <span id="count" class="count"></span>
+    </div>
+    <div id="gallery" class="grid"></div>
+    <p id="empty" class="empty hidden">Todavía no hay fotos. ¡Sube la primera!</p>
+  </section>
+</main>
+
+<footer class="bottom">
+  <div class="bottom-inner">
+    <div>
+      <h3 class="foot-title">Galería</h3>
+      <p>Fotos guardadas en almacenamiento privado.</p>
+    </div>
+    <div>
+      <h3 class="foot-title">Formatos</h3>
+      <p>JPG, PNG y WebP.</p>
+    </div>
+    <div>
+      <h3 class="foot-title">Tamaño</h3>
+      <p>Hasta 5&nbsp;MB por imagen.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
