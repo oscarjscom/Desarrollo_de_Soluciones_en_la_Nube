@@ -25,6 +25,7 @@
 | [Semana 06 - SecureDocs RBAC y ABAC](<Semana 06 - SecureDocs RBAC y ABAC>) | Control de acceso con RBAC y ABAC · FastAPI |
 | [Semana 08 - TechStore Seguridad en la nube](<Semana 08 - TechStore Seguridad en la nube>) | Registro, login, MFA y roles · Node.js |
 | [Semana 09 - Cloud Storage S3](<Semana 09 - Cloud Storage S3>) | Galería con S3, IAM y URLs prefirmadas · Node.js |
+| [Semana 10 - VPC](<Semana 10 - VPC>) | Red virtual en AWS con subredes públicas y privadas |
 
 ## Práctica calificada 1
 
