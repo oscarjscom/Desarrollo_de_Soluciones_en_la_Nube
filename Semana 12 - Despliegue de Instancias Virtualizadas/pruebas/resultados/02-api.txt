@@ -1,0 +1,70 @@
+
+[1m== 1. Registro e inicio de sesión (balanceador)[0m
+  [32mOK[0m     Registro de ana1793800147 (= 201)
+  [32mOK[0m     Registro de beto1793800147 (= 201)
+  [32mOK[0m     Registro de carla1793800147 (= 201)
+  [32mOK[0m     Nombre repetido es rechazado (= 409)
+  [32mOK[0m     Clave incorrecta es rechazada (= 401)
+  [32mOK[0m     Inicio de sesión del administrador (= 200)
+
+[1m== 2. Seguridad y validaciones[0m
+  [32mOK[0m     Predecir sin iniciar sesión (= 401)
+  [32mOK[0m     Ver salas sin iniciar sesión (= 401)
+  [32mOK[0m     Un participante no puede crear partidos (= 403)
+
+[1m== 3. Partidos de prueba (creados por el administrador)[0m
+  [32mOK[0m     Crear partido P1 (en 30 h) (= 201)
+  [33mPartidos creados: P1=13 P2=14 P3=15 P4=16 P5(en 5 min)=17 P6(ya empezó)=18[0m
+
+[1m== 4. Predicciones[0m
+  [32mOK[0m     No se puede predecir un partido que ya empezó (= 409)
+  [32mOK[0m     Goles negativos son rechazados (= 400)
+  [32mOK[0m     Ana predice P1 2-1 (= 200)
+  [32mOK[0m     P1 se registró con más de 24 h de anticipación (= true)
+  [32mOK[0m     Ana predice P5 (empieza en 5 min) (= 200)
+  [32mOK[0m     P5 NO es anticipada (último minuto) (= false)
+  [32mOK[0m     Carla predice solo P4 0-3 (= 200)
+
+[1m== 5. Resultados reales y puntuación (reglas 1 a 5)[0m
+  [32mOK[0m     El administrador registra el resultado de P5 (= 200)
+  [33mResultados: P1 2-1 · P2 1-0 · P3 2-2 · P4 0-3 · P5 1-0[0m
+  [33mAna:   {"usuarioId":2,"nombre":"ana1793800147","puntos":25,"aciertos":4,"exactos":3,"jugadas":5,"mejorRacha":4,"posicion":1,"efectividad":80,"participantes":3}[0m
+  [32mOK[0m     Ana: puntos totales (3 exactos, empate con diferencia, anticipadas y racha) (= 25)
+  [32mOK[0m     Ana: marcadores exactos (P5, P1, P2) (= 3)
+  [32mOK[0m     Ana: mejor racha de aciertos seguidos (P5, P1, P2, P3) (= 4)
+  [33mBeto:  {"usuarioId":3,"nombre":"beto1793800147","puntos":14,"aciertos":3,"exactos":0,"jugadas":4,"mejorRacha":2,"posicion":2,"efectividad":75,"participantes":3}[0m
+  [32mOK[0m     Beto: puntos (ganador, ganador+diferencia, fallo, ganador; sin racha de 3) (= 14)
+  [32mOK[0m     Beto: mejor racha (la rompe el fallo en P3) (= 2)
+  [33mCarla: {"usuarioId":4,"nombre":"carla1793800147","puntos":6,"aciertos":1,"exactos":1,"jugadas":1,"mejorRacha":1,"posicion":3,"efectividad":100,"participantes":3}[0m
+  [32mOK[0m     Carla: puntos (exacto 5 + anticipada 1) (= 6)
+
+[1m== 6. Salas con invitación[0m
+  [32mOK[0m     Ana crea una sala (= 201)
+  [33mSala 1 con código de invitación B0E54E7D[0m
+  [32mOK[0m     Beto se une con el código (= 200)
+  [32mOK[0m     Un código inválido es rechazado (= 404)
+  [32mOK[0m     Carla se une con el código (= 200)
+  [32mOK[0m     Ranking de la sala: 1.º lugar (= ana1793800147)
+  [32mOK[0m     Ranking de la sala: puntos del 1.º (= 25)
+  [32mOK[0m     Ranking de la sala: 2.º lugar (= beto1793800147)
+  [32mOK[0m     Ranking de la sala: 3.er lugar (= carla1793800147)
+  [32mOK[0m     Solo el creador cambia el código (Beto: 403) (= 403)
+  [32mOK[0m     El creador genera un código nuevo (= 200)
+  [32mOK[0m     El código anterior deja de funcionar (= 404)
+  [32mOK[0m     El creador saca a Carla de la sala (= 200)
+  [32mOK[0m     Carla ya no puede ver la sala (= 404)
+  [32mOK[0m     Beto sale de la sala (= 200)
+  [32mOK[0m     El creador elimina la sala (= 200)
+  [32mOK[0m     La sala eliminada ya no existe (= 404)
+
+[1m== 7. Consistencia entre los dos nodos (base de datos compartida)[0m
+  [32mOK[0m     Registro hecho en el nodo1 (= 201)
+  [32mOK[0m     Inicio de sesión del mismo usuario en el nodo2 (= 200)
+  [32mOK[0m     El token emitido por nodo2 es válido en nodo1 (= 200)
+  [32mOK[0m     El ranking es idéntico en nodo1 y nodo2 (= afb97ddb59e1e9ec2a74b692377c0cf9)
+
+[1m== Limpieza de los partidos de prueba[0m
+  [32mOK[0m     Partidos de prueba eliminados
+
+[1m== Resumen ==[0m
+  Correctas: [32m45[0m   Fallidas: [31m0[0m

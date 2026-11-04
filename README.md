@@ -26,6 +26,7 @@
 | [Semana 08 - TechStore Seguridad en la nube](<Semana 08 - TechStore Seguridad en la nube>) | Registro, login, MFA y roles · Node.js |
 | [Semana 09 - Cloud Storage S3](<Semana 09 - Cloud Storage S3>) | Galería con S3, IAM y URLs prefirmadas · Node.js |
 | [Semana 10 - VPC](<Semana 10 - VPC>) | Red virtual en AWS con subredes públicas y privadas |
+| [Semana 12 - Despliegue de Instancias Virtualizadas](<Semana 12 - Despliegue de Instancias Virtualizadas>) | Mundial – Predicciones con 2 nodos, Nginx y Docker · Node.js |
 
 ## Práctica calificada 1
 

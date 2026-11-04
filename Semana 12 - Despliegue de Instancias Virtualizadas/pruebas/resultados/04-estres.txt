@@ -1,0 +1,42 @@
+
+[1m== Estado inicial[0m
+  [32mOK[0m     Nodos activos (= 2)
+
+[1m== A. Lectura (GET /api/partidos) con 2 nodos[0m
+  Ejecutando: Lectura - 2 nodos (40 conexiones, 12 s)...
+    -> 2469 req/s | latencia promedio 15.7 ms | p99 38.0 ms | 29620 peticiones | 29620 respuestas 2xx | 0 no-2xx | 0 errores
+
+[1m== B. Inicios de sesión (POST /api/login, usa CPU) con 2 nodos[0m
+  Ejecutando: Login - 2 nodos (40 conexiones, 12 s)...
+    -> 137 req/s | latencia promedio 288.0 ms | p99 364.0 ms | 1649 peticiones | 1649 respuestas 2xx | 0 no-2xx | 0 errores
+
+[1m== Se apaga el nodo2: queda 1 solo nodo[0m
+  [32mOK[0m     Nodos activos (= 1)
+
+[1m== C. Lectura con 1 nodo[0m
+  Ejecutando: Lectura - 1 nodo (40 conexiones, 12 s)...
+    -> 1042 req/s | latencia promedio 37.9 ms | p99 62.0 ms | 12505 peticiones | 12505 respuestas 2xx | 0 no-2xx | 0 errores
+
+[1m== D. Inicios de sesión con 1 nodo[0m
+  Ejecutando: Login - 1 nodo (40 conexiones, 12 s)...
+    -> 76 req/s | latencia promedio 519.7 ms | p99 2354.0 ms | 913 peticiones | 913 respuestas 2xx | 0 no-2xx | 0 errores
+
+[1m== Se vuelve a encender el nodo2[0m
+  [32mOK[0m     Nodos activos (= 2)
+
+[1m== Resultados[0m
+  Escenario                req/s lat. prom.ms    p99 ms  peticiones   no-2xx  errores
+  Lectura - 2 nodos         2469         15.7      38.0       29620        0        0
+  Login - 2 nodos            137        288.0     364.0        1649        0        0
+  Lectura - 1 nodo          1042         37.9      62.0       12505        0        0
+  Login - 1 nodo              76        519.7    2354.0         913        0        0
+  [33mMejora de lectura con 2 nodos vs 1 nodo: x2.37[0m
+  [33mMejora de inicios de sesión con 2 nodos vs 1 nodo: x1.80[0m
+  [32mOK[0m     Sin errores ni respuestas no-2xx en 'Lectura - 2 nodos' (= 0+0)
+  [32mOK[0m     Sin errores ni respuestas no-2xx en 'Login - 2 nodos' (= 0+0)
+  [32mOK[0m     Sin errores ni respuestas no-2xx en 'Lectura - 1 nodo' (= 0+0)
+  [32mOK[0m     Sin errores ni respuestas no-2xx en 'Login - 1 nodo' (= 0+0)
+  [32mOK[0m     Con 2 nodos el login procesa más peticiones por segundo que con 1 (x100) (>= 120, obtenido 180)
+
+[1m== Resumen ==[0m
+  Correctas: [32m8[0m   Fallidas: [31m0[0m

@@ -1,0 +1,33 @@
+
+[1m== 1. Estado inicial (los dos nodos activos)[0m
+  [33mDe 10 consultas -> nodo1: 5 · nodo2: 5 · con error: 0[0m
+  [32mOK[0m     nodo1 recibe tráfico (reparto parejo) (>= 4, obtenido 5)
+  [32mOK[0m     nodo2 recibe tráfico (reparto parejo) (>= 4, obtenido 5)
+
+[1m== 2. Se detiene el nodo1 (docker stop mundial-nodo1)[0m
+  [33mnodo1 detenido[0m
+  [33mDe 10 consultas -> nodo1: 0 · nodo2: 10 · con error: 0[0m
+  [32mOK[0m     Ninguna consulta falla (= 0)
+  [32mOK[0m     nodo2 atiende todas las consultas (= 10)
+  [32mOK[0m     El inicio de sesión sigue funcionando solo con nodo2 (= 200)
+
+[1m== 3. Se vuelve a encender el nodo1[0m
+  [33mnodo1 activo otra vez[0m
+  [33mDe 10 consultas -> nodo1: 5 · nodo2: 5 · con error: 0[0m
+  [32mOK[0m     Ninguna consulta falla (= 0)
+  [32mOK[0m     nodo1 vuelve a recibir tráfico (>= 3, obtenido 5)
+
+[1m== 4. Se detiene el nodo2 (docker stop mundial-nodo2)[0m
+  [33mnodo2 detenido[0m
+  [33mDe 10 consultas -> nodo1: 10 · nodo2: 0 · con error: 0[0m
+  [32mOK[0m     Ninguna consulta falla (= 0)
+  [32mOK[0m     nodo1 atiende todas las consultas (= 10)
+
+[1m== 5. Se vuelve a encender el nodo2[0m
+  [33mnodo2 activo otra vez[0m
+  [33mDe 10 consultas -> nodo1: 5 · nodo2: 5 · con error: 0[0m
+  [32mOK[0m     Ninguna consulta falla (= 0)
+  [32mOK[0m     nodo2 vuelve a recibir tráfico (>= 3, obtenido 5)
+
+[1m== Resumen ==[0m
+  Correctas: [32m11[0m   Fallidas: [31m0[0m

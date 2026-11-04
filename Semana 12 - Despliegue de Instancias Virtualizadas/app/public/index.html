@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mundial · Predicciones</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="marca"><span class="balon" aria-hidden="true"></span><div><strong>Mundial</strong><small>Predicciones</small></div></div>
+  <nav id="menu" class="menu hidden">
+    <button data-vista="partidos" class="activo">Partidos</button>
+    <button data-vista="ranking">Ranking</button>
+    <button data-vista="salas">Salas</button>
+    <button data-vista="stats">Mis estadísticas</button>
+  </nav>
+  <div id="sesion" class="sesion hidden"><span id="quien"></span><button id="salir" class="enlace">Salir</button></div>
+</header>
+
+<main>
+  <!-- Acceso -->
+  <section id="vista-acceso" class="tarjeta acceso">
+    <h1>Predice el Mundial y gana puntos</h1>
+    <p class="suave">Acierta marcadores, suma rachas y compite con tus amigos en salas privadas. Es un juego educativo: no hay dinero real.</p>
+    <div class="pestanas"><button id="t-login" class="activo">Ingresar</button><button id="t-registro">Crear cuenta</button></div>
+    <form id="form-acceso" autocomplete="on">
+      <label>Nombre de usuario<input id="a-nombre" required minlength="3" maxlength="20" autocomplete="username"></label>
+      <label>Clave<input id="a-clave" type="password" required minlength="4" autocomplete="current-password"></label>
+      <button id="a-enviar" class="primario">Ingresar</button>
+      <p id="a-msg" class="msg" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Partidos -->
+  <section id="vista-partidos" class="vista hidden">
+    <div class="reglas">
+      <strong>Cómo se puntúa</strong>
+      <ul>
+        <li>Resultado exacto: <b>5</b></li><li>Ganador correcto: <b>3</b></li><li>Diferencia de goles: <b>2</b></li>
+        <li>Racha de 3 aciertos: <b>+2</b></li><li>Predicción con más de 24 h de anticipación: <b>+1</b></li>
+      </ul>
+    </div>
+    <h2>Partidos</h2>
+    <div id="lista-partidos" class="rejilla"></div>
+  </section>
+
+  <!-- Ranking -->
+  <section id="vista-ranking" class="vista hidden">
+    <h2>Ranking general</h2>
+    <div class="tarjeta"><div id="tabla-ranking"></div></div>
+  </section>
+
+  <!-- Salas -->
+  <section id="vista-salas" class="vista hidden">
+    <h2>Salas</h2>
+    <div class="dos">
+      <form id="form-crear-sala" class="tarjeta">
+        <h3>Crear una sala</h3>
+        <label>Nombre de la sala<input id="s-nombre" required minlength="3" maxlength="40" placeholder="Ej. Amigos del barrio"></label>
+        <button class="primario">Crear sala</button>
+      </form>
+      <form id="form-unirse" class="tarjeta">
+        <h3>Unirme con un código</h3>
+        <label>Código de invitación<input id="s-codigo" required maxlength="8" placeholder="Ej. 9F3A21BC" style="text-transform:uppercase"></label>
+        <button class="primario">Unirme</button>
+      </form>
+    </div>
+    <p id="s-msg" class="msg" role="alert"></p>
+    <div id="lista-salas" class="rejilla"></div>
+    <div id="detalle-sala" class="tarjeta hidden"></div>
+  </section>
+
+  <!-- Estadísticas -->
+  <section id="vista-stats" class="vista hidden">
+    <h2>Mis estadísticas</h2>
+    <div id="tarjetas-stats" class="stats"></div>
+  </section>
+</main>
+
+<footer class="pie">Atendido por el nodo: <b id="nodo">…</b></footer>
+<div id="aviso" class="aviso hidden" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>

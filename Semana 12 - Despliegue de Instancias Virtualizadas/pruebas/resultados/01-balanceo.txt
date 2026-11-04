@@ -1,0 +1,18 @@
+
+[1m== Consulta directa a cada nodo (/api/info)[0m
+  [33mhttp://localhost:3001 -> {"nodo":"nodo1","host":"7d0211ffe134","activoSegundos":15,"peticiones":2,"hora":"2026-11-04T13:49:04.118Z"}[0m
+  [33mhttp://localhost:3002 -> {"nodo":"nodo2","host":"dfb2bf65d841","activoSegundos":15,"peticiones":2,"hora":"2026-11-04T13:49:04.205Z"}[0m
+  [32mOK[0m     El puerto 3001 responde como nodo1 (= nodo1)
+  [32mOK[0m     El puerto 3002 responde como nodo2 (= nodo2)
+
+[1m== 20 consultas al balanceador (http://localhost:8088)[0m
+  [33mRespondieron: nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2 nodo1 nodo2[0m
+  [32mOK[0m     Peticiones atendidas por nodo1 (= 10)
+  [32mOK[0m     Peticiones atendidas por nodo2 (= 10)
+
+[1m== Cabecera del balanceador[0m
+  [33mX-Balanceador: nginx[0m
+  [32mOK[0m     La respuesta pasa por Nginx (= x-balanceador: nginx)
+
+[1m== Resumen ==[0m
+  Correctas: [32m5[0m   Fallidas: [31m0[0m

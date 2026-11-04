@@ -1,0 +1,67 @@
+# Mundial de predicciones: base de datos + 2 nodos de la aplicación + balanceador Nginx
+name: mundial
+
+x-app: &app
+  build: ./app
+  image: mundial-app:1.0
+  restart: unless-stopped
+  depends_on:
+    db:
+      condition: service_healthy
+  environment: &env
+    DB_HOST: db
+    DB_USER: mundial
+    DB_PASSWORD: mundial
+    DB_NAME: mundial
+    JWT_SECRETO: ${JWT_SECRETO:-secreto-de-desarrollo-cambiar}
+    ADMIN_USUARIO: admin
+    ADMIN_CLAVE: ${ADMIN_CLAVE:-admin123}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mundial
+      POSTGRES_PASSWORD: mundial
+      POSTGRES_DB: mundial
+    volumes:
+      - datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mundial -d mundial"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  nodo1:
+    <<: *app
+    container_name: mundial-nodo1
+    environment:
+      <<: *env
+      NODO: nodo1
+    ports:
+      - "3001:3000"   # acceso directo al nodo 1 (para las pruebas)
+
+  nodo2:
+    <<: *app
+    container_name: mundial-nodo2
+    environment:
+      <<: *env
+      NODO: nodo2
+    ports:
+      - "3002:3000"   # acceso directo al nodo 2 (para las pruebas)
+
+  balanceador:
+    image: nginx:1.27-alpine
+    container_name: mundial-balanceador
+    restart: unless-stopped
+    depends_on:
+      - nodo1
+      - nodo2
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8088:80"     # punto de entrada: reparte entre nodo1 y nodo2
+
+volumes:
+  datos:

@@ -1,0 +1,17 @@
+{
+  "name": "mundial-predicciones",
+  "version": "1.0.0",
+  "description": "Predicciones del Mundial con salas, ranking, dos nodos y balanceo de carga",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  }
+}
