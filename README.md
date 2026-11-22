@@ -27,6 +27,7 @@
 | [Semana 09 - Cloud Storage S3](<Semana 09 - Cloud Storage S3>) | Galería con S3, IAM y URLs prefirmadas · Node.js |
 | [Semana 10 - VPC](<Semana 10 - VPC>) | Red virtual en AWS con subredes públicas y privadas |
 | [Semana 12 - Despliegue de Instancias Virtualizadas](<Semana 12 - Despliegue de Instancias Virtualizadas>) | Mundial – Predicciones con 2 nodos, Nginx y Docker · Node.js |
+| [Semana 13 - RDS Failover y CRUD con DynamoDB](<Semana 13 - RDS Failover y CRUD con DynamoDB>) | RDS Multi-AZ con failover y CRUD con DynamoDB y S3 · Node.js |
 
 ## Práctica calificada 1
 

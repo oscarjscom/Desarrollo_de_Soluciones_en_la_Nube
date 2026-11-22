@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Empleados · DynamoDB y S3</title>
+<style>
+  :root { --fondo:#0f1b2d; --panel:#16273f; --borde:#27415f; --texto:#e8eef7; --suave:#9db0c8; --acento:#ff9900; --ok:#34c38f; --mal:#ef5350; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, Segoe UI, sans-serif; background:var(--fondo); color:var(--texto); }
+  header { padding:1rem 1.5rem; border-bottom:1px solid var(--borde); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem; }
+  h1 { margin:0; font-size:1.25rem; } h1 small { color:var(--suave); font-weight:400; font-size:.85rem; margin-left:.5rem; }
+  main { max-width:1000px; margin:1.5rem auto; padding:0 1rem; display:grid; gap:1.5rem; }
+  .panel { background:var(--panel); border:1px solid var(--borde); border-radius:12px; padding:1.25rem; }
+  form { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.75rem; align-items:end; }
+  label { display:grid; gap:.3rem; font-size:.85rem; color:var(--suave); }
+  input { padding:.55rem .7rem; border-radius:8px; border:1px solid var(--borde); background:#0c1626; color:var(--texto); font:inherit; }
+  button { padding:.55rem 1rem; border-radius:8px; border:0; background:var(--acento); color:#111; font-weight:600; cursor:pointer; }
+  button.sec { background:transparent; color:var(--texto); border:1px solid var(--borde); } button.peligro { background:var(--mal); color:#fff; }
+  table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:.6rem .5rem; border-bottom:1px solid var(--borde); } th { color:var(--suave); font-weight:500; font-size:.85rem; }
+  .foto { width:48px; height:48px; border-radius:50%; object-fit:cover; background:#0c1626; display:block; }
+  .acc { display:flex; gap:.4rem; } .msg { min-height:1.2rem; font-size:.9rem; } .ok { color:var(--ok); } .mal { color:var(--mal); }
+  pre { margin:.5rem 0 0; padding:.75rem; background:#0c1626; border-radius:8px; overflow:auto; font-size:.85rem; }
+</style>
+</head>
+<body>
+<header><h1>Empleados<small>DynamoDB + S3</small></h1><span id="nodo" style="color:var(--suave);font-size:.85rem"></span></header>
+<main>
+  <section class="panel">
+    <h2 id="titulo-form" style="margin-top:0">Nuevo empleado</h2>
+    <form id="form">
+      <label>Nombre<input name="nombre" required maxlength="60"></label>
+      <label>Cargo<input name="cargo" maxlength="60"></label>
+      <label>Correo<input name="correo" type="email"></label>
+      <label>Foto<input name="foto" type="file" accept="image/*"></label>
+      <div class="acc"><button id="guardar">Guardar</button><button type="button" class="sec hidden" id="cancelar" style="display:none">Cancelar</button></div>
+    </form>
+    <p id="msg" class="msg"></p>
+  </section>
+  <section class="panel">
+    <table><thead><tr><th>Foto</th><th>Nombre</th><th>Cargo</th><th>Correo</th><th></th></tr></thead><tbody id="filas"></tbody></table>
+    <p id="vacio" class="msg" style="color:var(--suave)"></p>
+  </section>
+  <section class="panel">
+    <h2 style="margin-top:0">Base de datos RDS (Multi-AZ)</h2>
+    <button id="probar" class="sec">Probar conexión a MySQL</button>
+    <pre id="db">Pulsa el botón para escribir un registro en RDS.</pre>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let editando = null;
+const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function aviso(t, ok = true) { $('msg').textContent = t; $('msg').className = 'msg ' + (ok ? 'ok' : 'mal'); }
+
+async function cargar() {
+  const r = await fetch('/api/empleados'); const lista = await r.json();
+  $('filas').innerHTML = lista.map((e) => `<tr>
+    <td>${e.fotoUrl ? `<img class="foto" src="${e.fotoUrl}" alt="">` : '<span class="foto"></span>'}</td>
+    <td>${esc(e.nombre)}</td><td>${esc(e.cargo)}</td><td>${esc(e.correo)}</td>
+    <td><div class="acc"><button class="sec" data-ed="${e.id}">Editar</button><button class="peligro" data-del="${e.id}">Eliminar</button></div></td></tr>`).join('');
+  $('vacio').textContent = lista.length ? '' : 'Todavía no hay empleados.';
+  document.querySelectorAll('[data-ed]').forEach((b) => (b.onclick = () => editar(lista.find((e) => e.id === b.dataset.ed))));
+  document.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => borrar(b.dataset.del)));
+}
+function editar(e) {
+  editando = e.id; $('titulo-form').textContent = 'Editar empleado';
+  const f = $('form'); f.nombre.value = e.nombre; f.cargo.value = e.cargo; f.correo.value = e.correo; f.foto.value = '';
+  $('guardar').textContent = 'Actualizar'; $('cancelar').style.display = '';
+}
+function limpiar() { editando = null; $('form').reset(); $('titulo-form').textContent = 'Nuevo empleado'; $('guardar').textContent = 'Guardar'; $('cancelar').style.display = 'none'; }
+$('cancelar').onclick = limpiar;
+$('form').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const r = await fetch(editando ? '/api/empleados/' + editando : '/api/empleados', { method: editando ? 'PUT' : 'POST', body: new FormData($('form')) });
+  const d = await r.json();
+  if (!r.ok) return aviso(d.error, false);
+  aviso(editando ? 'Empleado actualizado' : 'Empleado creado'); limpiar(); cargar();
+};
+async function borrar(id) {
+  if (!confirm('¿Eliminar este empleado y su foto?')) return;
+  const r = await fetch('/api/empleados/' + id, { method: 'DELETE' });
+  if (r.ok) { aviso('Empleado eliminado'); cargar(); } else aviso((await r.json()).error, false);
+}
+$('probar').onclick = async () => {
+  $('db').textContent = 'Conectando...';
+  const r = await fetch('/api/db'); const d = await r.json();
+  $('db').textContent = r.ok ? JSON.stringify(d, null, 2) : 'Error: ' + d.error;
+};
+cargar();
+</script>
+</body>
+</html>
