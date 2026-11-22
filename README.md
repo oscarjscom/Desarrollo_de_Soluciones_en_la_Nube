@@ -28,6 +28,7 @@
 | [Semana 10 - VPC](<Semana 10 - VPC>) | Red virtual en AWS con subredes públicas y privadas |
 | [Semana 12 - Despliegue de Instancias Virtualizadas](<Semana 12 - Despliegue de Instancias Virtualizadas>) | Mundial – Predicciones con 2 nodos, Nginx y Docker · Node.js |
 | [Semana 13 - RDS Failover y CRUD con DynamoDB](<Semana 13 - RDS Failover y CRUD con DynamoDB>) | RDS Multi-AZ con failover y CRUD con DynamoDB y S3 · Node.js |
+| [Semana 14 - Seguridad en servicios AWS](<Semana 14 - Seguridad en servicios AWS>) | Cifrado con KMS en S3 y permisos de la clave · PHP |
 
 ## Práctica calificada 1
 
